@@ -13,9 +13,11 @@ import fs from "node:fs"
 import getStdin from 'get-stdin';
 import { Transform } from 'node:stream';
 
+import zlib from 'node:zlib';
 
 
 
+let BASE_PATH = new URL("./out.txt",import.meta.url).pathname;
 
 yargs(hideBin(process.argv))
   .command('outStream <file>', 'fetch the contents of the URL', yargs => {
@@ -32,6 +34,11 @@ yargs(hideBin(process.argv))
   })
     .option('out', {
     alias: 'o',
+    type: 'string',
+    description: 'tags to add to the note'
+  })
+   .option('compress', {
+    alias: 'c',
     type: 'string',
     description: 'tags to add to the note'
   })
@@ -73,15 +80,30 @@ function processFile(inStream){
   })
 
   outStream = outStream.pipe(upperStream)
+
+  //if there is --compress flag:
+  if(yargs(hideBin(process.argv)).argv.compress){
+    // here gzipStream is the writable transform stream
+    var gzipStream = zlib.createGzip();
+    outStream = outStream.pipe(gzipStream)
+    // change the file extension from .txt to .txt.gz:
+    BASE_PATH = `${BASE_PATH}.gz`
+  }
+
+
+
   var targetStream;
 
+  // if there is --out flag:
   if(yargs(hideBin(process.argv)).argv.out){
        targetStream = process.stdout;
 
   }
 
+
+
   else{
-    targetStream = fs.createWriteStream("./out.txt")
+    targetStream = fs.createWriteStream(BASE_PATH)
   }
 
 
@@ -93,7 +115,7 @@ function processFile(inStream){
 
 
   
-console.log(yargs(hideBin(process.argv)).argv.out)
+console.log(yargs(hideBin(process.argv)).argv)
 
 
 

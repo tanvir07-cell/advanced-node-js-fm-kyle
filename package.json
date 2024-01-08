@@ -1,0 +1,16 @@
+{
+  "name": "digging-into-node",
+  "version": "1.0.0",
+  "description": "Kyle Simpson @getify",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Tanvir Rifat <tr9836859@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "get-stdin": "^9.0.0",
+    "yargs": "^17.7.2"
+  }
+}

@@ -30,6 +30,7 @@ yargs(hideBin(process.argv))
 
     const stream = fs.createReadStream(filePath)   
     processFile(stream)
+    console.log("completed!")
 
   })
     .option('out', {
@@ -39,6 +40,17 @@ yargs(hideBin(process.argv))
   })
    .option('compress', {
     alias: 'c',
+    type: 'string',
+    description: 'tags to add to the note'
+  })
+  .option('uncompress', {
+    alias: 'u',
+    type: 'string',
+    description: 'tags to add to the note'
+  })
+
+  .option('in', {
+    alias: 'i',
     type: 'string',
     description: 'tags to add to the note'
   })
@@ -62,13 +74,22 @@ yargs(hideBin(process.argv))
   .parse()
   
 
-
+if(yargs(hideBin(process.argv)).argv.in){
+  processFile(process.stdin)
+}
 
 
 
 function processFile(inStream){
   // inStream is the readble stream
   let outStream = inStream;
+
+  if(yargs(hideBin(process.argv)).argv.uncompress){
+    // here gunzipStream is the readable transform stream
+    var gunzipStream = zlib.createGunzip();
+    outStream = outStream.pipe(gunzipStream)
+
+  }
 
   // here upperStream is the writable transform stream
   var upperStream = new Transform({

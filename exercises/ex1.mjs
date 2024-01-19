@@ -1,71 +1,69 @@
 #!/usr/bin/env node
+
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
-
-
-import c from 'ansi-colors';
-
-// const c = require('ansi-colors');
-// const path = require("path");
-import fs from "node:fs"
-// const fs = require('fs')
-
+import fs from "fs/promises"
+import { get } from 'http';
 import getStdin from 'get-stdin';
 
-
-
-
 yargs(hideBin(process.argv))
-  .command('out <file>', 'fetch the contents of the URL', () => {}, (argv) => {
-    console.info(argv)
+.command('print', 'read the content of the file', () => {}, async (argv) => {
+  console.log(argv)
 
-    const location = new URL(argv.file, import.meta.url).pathname
+  if(argv.file){
+  
+    try{
+      const pathToFile = new URL(argv.file,import.meta.url).pathname;
 
-    fs.readFile(location, (err,data)=>{
-    if(err){
-      console.error(err);
-      return
+       const fileContent = await fs.readFile(pathToFile);
+       processFile(fileContent.toString())
+
     }
+    catch(err){
+      console.error(err)
 
-    processFile(data)
+    }
+  }
 
+   if(argv.in==="" || argv._.includes('-')){
+    //  try{
+    //   const fileContent = await getStdin();
+    //   processFile(fileContent.toString())
+    //  }
+    //  catch(err){
+    //    console.error(err)
+    //  }
 
-    
+    // another way to do it and not using the getStdin userland module:
+
+    process.stdin
+    .on('data', data => processFile(data.toString()))
+
+   }
+})
+  .option('file',{
+    alias: 'f',
+    type: 'string',
+    description: 'file to read'
+  
+  })
+  .option('in',{
+    alias: 'i',
+    type: 'string',
+    description: "read from stdin"
+  
+  })
+  .demandCommand(1, 'You need at least one command before moving on')
   
   
-  })
-    
-
-
-  })
-
-  .command('in', 'fetch the contents of the URL', () => {}, (argv) => {
-    console.log(argv)
-       getStdin().then(processFile).catch(err=>console.error(err))
-
-  })
-  .demandCommand(1,c.red.bold.underline('You need at least one command before moving on'))
-  .strictCommands(true)
- 
-  .help()
   .parse()
 
 
 
 
-
-function processFile(content){
-  content = content.toString().toUpperCase()
-  process.stdout.write(content)
-
-}
-
-
-  
-
-   
-
-
-
+   function processFile(contents){
+    process.stdout.write(contents.toUpperCase())
+    
+  }
 
 

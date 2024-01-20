@@ -115,9 +115,16 @@ yargs(hideBin(process.argv))
     }
 
     outStream.pipe(targetStream)
-    .on("finish",()=>{
-      console.log("finished!")
+
+    outStream.on('end',()=>{
+      if(targetStream !== process.stdout){
+         console.log(`File written to ${BASE_PATH}`)
+      }
+      if(targetStream === process.stdout){
+        console.log(`File written to stdout`)
+      }
     })
+   
 
 
 

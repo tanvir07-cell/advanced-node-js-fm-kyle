@@ -6,8 +6,9 @@ import fs from "fs"
 import { get } from 'http';
 import getStdin from 'get-stdin';
 import through2 from 'through2';
+import zlib from "node:zlib"
 
-const BASE_PATH = new URL("./out.txt",import.meta.url).pathname
+let BASE_PATH = new URL("./out.txt",import.meta.url).pathname
 
 yargs(hideBin(process.argv))
 .command('print', 'read the content of the file', () => {}, async (argv) => {
@@ -55,6 +56,18 @@ yargs(hideBin(process.argv))
     description: "write to stdout"
   
   })
+      .option("compress",{
+    alias: 'c',
+    type: 'boolean',
+    description: "compress output"
+  
+  })
+        .option("uncompress",{
+    alias: 'u',
+    type: 'boolean',
+    description: "uncomress output"
+  
+  })
   .demandCommand(1, 'You need at least one command before moving on')
   
   
@@ -67,10 +80,29 @@ yargs(hideBin(process.argv))
 
     let outStream = inStream;
 
+       if(yargs(hideBin(process.argv)).argv.uncompress){
+      const gunzipStream = zlib.createGunzip()
+      outStream = outStream.pipe(gunzipStream)
+      BASE_PATH = BASE_PATH.slice(0)
+
+    }
+    
+
 
     outStream = outStream.pipe(through2(function(buf,enc,next){
          next(null,buf.toString().toUpperCase())    
     }))
+
+ 
+    
+
+    if(yargs(hideBin(process.argv)).argv.compress){
+      const gzipStream = zlib.createGzip()
+      outStream = outStream.pipe(gzipStream)
+      BASE_PATH = `${BASE_PATH}.gz`
+
+
+    }
 
     let targetStream;
 

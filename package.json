@@ -10,7 +10,9 @@
   "author": "Tanvir Rifat <tr9836859@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "abort-controller": "^3.0.0",
     "get-stdin": "^9.0.0",
+    "p-cancelable": "^4.0.1",
     "through2": "^4.0.2",
     "yargs": "^17.7.2"
   }

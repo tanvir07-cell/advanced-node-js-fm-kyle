@@ -8,9 +8,9 @@ import getStdin from 'get-stdin';
 import through2 from 'through2';
 import zlib from "node:zlib"
 import { abort } from 'process';
+import { clear } from 'console';
 const controller = new AbortController()
-const signal = AbortSignal.timeout(100)
-
+const signal = controller.signal
 let BASE_PATH = new URL("./out.txt",import.meta.url).pathname
 
 yargs(hideBin(process.argv))
@@ -24,8 +24,7 @@ yargs(hideBin(process.argv))
       
       const readStream = fs.createReadStream(pathToFile,{signal});
       
-      processFile(readStream).then(()=>{console.log("done")}).catch((err)=>{console.error(err)})
-  
+      processFile(readStream)  
   
 
   }
@@ -119,23 +118,32 @@ yargs(hideBin(process.argv))
 
      try {
     await new Promise((resolve, reject) => {
+
+      let res = setTimeout(() => {
+        controller.abort();
+      }, 13);
+     
       signal.addEventListener('abort', () => {
-        reject(new Error('File reading timed out (10ms)'));
+      
+
+        reject(new Error('\nFile reading timed out after 13ms'));
+
+        clearTimeout(res)
       });
 
       outStream.on('end', () => {
         resolve();
         if (targetStream !== process.stdout) {
           console.log(`File written to ${BASE_PATH}`);
-          controller.abort();
         }
         if (targetStream === process.stdout) {
           console.log(`File written to stdout`);
-          controller.abort();
         }
       });
     });
-  } catch (err) {
+  } 
+  
+  catch (err) {
     console.error(err.message);
   }
 

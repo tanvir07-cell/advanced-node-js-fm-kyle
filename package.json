@@ -13,6 +13,8 @@
     "abort-controller": "^3.0.0",
     "get-stdin": "^9.0.0",
     "p-cancelable": "^4.0.1",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7",
     "through2": "^4.0.2",
     "yargs": "^17.7.2"
   }
